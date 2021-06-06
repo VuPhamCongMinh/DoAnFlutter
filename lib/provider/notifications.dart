@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:todo_app_firestore_example/api/firebase_api.dart';
 import 'package:todo_app_firestore_example/model/todo.dart';
+
+import '../page/edit_todo_page.dart';
 
 class NotificationService extends ChangeNotifier {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -11,7 +14,7 @@ class NotificationService extends ChangeNotifier {
 
   get flutterLocalNotificationsPlugin => _flutterLocalNotificationsPlugin;
 
-  Future init() async {
+  Future init(BuildContext context) async {
     tz.initializeTimeZones();
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
@@ -30,8 +33,11 @@ class NotificationService extends ChangeNotifier {
         onSelectNotification: (String payload) async {
       if (payload != null) {
         var todo = await FirebaseApi.readTodoById(payload);
-        todo.isDone = !todo.isDone;
-        FirebaseApi.updateTodo(todo);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => EditTodoPage(todo: todo),
+          ),
+        );
       }
     });
   }
@@ -45,8 +51,8 @@ class NotificationService extends ChangeNotifier {
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       0,
-      "Todo : ${deadlineTodo.title} đã dí tới đít",
-      "Bấm vào đây để đánh dấu là đã hoàn thành!",
+      "Todo : ${deadlineTodo.title} đã tới deadline 😥",
+      "Bấm vào đây để xem chi tiết !",
       tz.TZDateTime.parse(tz.local, deadlineTodo.deadlineTime.toString()),
       platform,
       androidAllowWhileIdle: true,

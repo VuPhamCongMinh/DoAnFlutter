@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    Provider.of<NotificationService>(context, listen: false).init();
+    Provider.of<NotificationService>(context, listen: false).init(context);
     super.initState();
   }
 
